@@ -1,0 +1,63 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: "{{SERVICE_NAME}}-{{SERVICE_VERSION}}-service"
+  namespace: "{{NAMESPACE}}-{{ENVIRONMENT}}"
+  labels:
+    app: "{{SERVICE_NAME}}-{{SERVICE_VERSION}}"
+    type: service
+    tier: backend
+spec:
+  selector:
+    appname: "{{SERVICE_NAME}}-{{SERVICE_VERSION}}"
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: "{{SERVICE_NAME}}-{{SERVICE_VERSION}}-deployment"
+  labels:
+    app-deployment: "{{SERVICE_NAME}}-{{SERVICE_VERSION}}-deployment"
+    team: "{{TEAM_NAME}}"
+    environment: "{{ENVIRONMENT}}"
+    tier: frontend
+    release: "{{RELEASE}}"
+  namespace: "{{NAMESPACE}}-{{ENVIRONMENT}}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      appname: "{{SERVICE_NAME}}-{{SERVICE_VERSION}}"
+  minReadySeconds: 10
+  template:
+    metadata:
+      labels:
+        app-pod: {{SERVICE_NAME}}
+        version: "{{SERVICE_VERSION}}"
+        appname: "{{SERVICE_NAME}}-{{SERVICE_VERSION}}"
+        team-pod: "{{TEAM_NAME}}"
+    spec:
+      nodeSelector:
+        ni-node: any
+      containers:
+      - name: "{{SERVICE_NAME}}-{{SERVICE_VERSION}}"
+        image: docker.infoedge.com:5000/infra/node/{{SERVICE_NAME}}:{{TAG}}
+        env:
+        - name: CLUSTER_URL
+          value: "{{CLUSTER_URL}}"
+        - name: NPM_TARGET
+          value: "{{NPM_TARGET}}"
+        - name: NPM_ENV
+          value: "{{NPM_ENV}}"  
+        - name: ENVIRONMENT
+          value: "{{ENVIRONMENT}}"
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        imagePullPolicy: Always
+      restartPolicy: Always
+      dnsPolicy: ClusterFirst

@@ -1,0 +1,19 @@
+{
+    "apps": [
+        {
+            "exec_mode": "fork_mode",
+            "script": "npm --prefix ./current/ run start-staging 8887",
+            "name": "pwa_ssr_1"
+        },
+        {
+            "exec_mode": "fork_mode",
+            "script": "npm --prefix ./current/ run start-staging 8888",
+            "name": "pwa_ssr_2"
+        },
+        {
+            "exec_mode": "fork_mode",
+            "script": "npm --prefix ./current/ run start-staging 8889",
+            "name": "pwa_ssr_3"
+        }
+    ]
+}
